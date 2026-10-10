@@ -171,3 +171,39 @@ The React frontend uses Axios service files. After login, the JWT is stored in `
 ## Repository Notes
 
 This folder is its own Git repository. `node_modules/`, `.env`, generated logs, and uploaded photos are ignored. The empty upload folders are kept with `.gitkeep` files so students can see where images are stored.
+
+---
+
+## Assignment Extensions (Karamagi Hadijah — M26B13/032)
+
+This fork adds three new features on top of the original CleanTrack backend.
+
+### 1. Favourite Locations
+
+- New column `is_favourite` on `customer_locations` (migration `001_add_is_favourite.sql`).
+- Endpoint: `PUT /api/locations/:id/favourite` — toggles favourite for the logged-in customer; only one favourite per customer at a time.
+
+### 2. Notification Centre
+
+- Endpoints:
+  - `GET /api/notifications/my-notifications`
+  - `GET /api/notifications/unread-count`
+  - `PUT /api/notifications/:id/read`
+  - `PUT /api/notifications/mark-all-read`
+- Notifications are auto-created when a driver updates a pickup status.
+- Uses the existing `notifications` table (no schema change).
+
+### 3. Recurring Pickup Schedules
+
+- New table `pickup_schedules` (migration `002_create_pickup_schedules.sql`).
+- Endpoints:
+  - `POST /api/schedules`
+  - `GET /api/schedules/my-schedules`
+  - `PUT /api/schedules/:id/pause`
+  - `PUT /api/schedules/:id/resume`
+  - `DELETE /api/schedules/:id`
+- Background job (`scripts/runSchedules.js`) runs every 60 seconds, creates a new pickup request for each due schedule, sends a notification, and advances `next_run_at` by 1 or 2 weeks.
+
+### Running the migrations
+
+After `npm run db:setup`, run:
